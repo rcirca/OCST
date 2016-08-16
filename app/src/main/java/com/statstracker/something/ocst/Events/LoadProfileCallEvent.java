@@ -1,15 +1,15 @@
-package com.statstracker.something.ocst.UnofficialOverwatchSDK.Service;
+package com.statstracker.something.ocst.Events;
 
 /**
  * Created by FailQuality on 8/15/2016.
  */
-public class LoadProfileEvent{
+public class LoadProfileCallEvent {
 
     private String mUsername;
     private String mPlatform;
     private String mRegion;
 
-    public LoadProfileEvent(String pPlatform, String pRegion, String pUsername){
+    public LoadProfileCallEvent(String pPlatform, String pRegion, String pUsername){
         mPlatform = pPlatform;
         mRegion = pRegion;
         mUsername = pUsername;
