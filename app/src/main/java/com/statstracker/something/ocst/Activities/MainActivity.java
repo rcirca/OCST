@@ -25,23 +25,15 @@ public class MainActivity extends AppCompatActivity {
 
     private Bus mBus;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // retrofit call
-        Gson gson = new GsonBuilder().create();
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(UnofficialOverwatchAPI.ENDPOINT)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
-        UnofficialOverwatchAPI api = retrofit.create(UnofficialOverwatchAPI.class);
-        ProfileService service = new ProfileService(api, getBus());
-        getBus().register(service);
-        getBus().register(this);
-        getBus().post(new LoadProfileEvent("pc", "us", "Circa-1414"));
+        mBus = BusProvider.getInstance();
+
+        mBus.register(this);
+        mBus.post(new LoadProfileEvent("pc", "us", "Circa-1414"));
     }
 
     @Subscribe
@@ -52,16 +44,5 @@ public class MainActivity extends AppCompatActivity {
     @Subscribe
     public void onLoadProfileFail(ProfileFailedEvent pEvent){
         Toast.makeText(this, "Failed", Toast.LENGTH_LONG).show();
-    }
-
-    private Bus getBus(){
-        if(mBus == null)
-            mBus = BusProvider.getInstance();
-
-        return mBus;
-    }
-
-    private void setBus(Bus pBus){
-        mBus = pBus;
     }
 }
