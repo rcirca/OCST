@@ -9,8 +9,56 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".Activities.MainActivity">
 
+    <!--<TextView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="Hello World!" />-->
+
     <TextView
+        android:id="@+id/battle_tag_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:layout_alignBottom="@+id/battle_tag_field"
+        android:text="Battle Tag: "/>
+
+    <EditText
+        android:id="@+id/battle_tag_field"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/battle_tag_text" />
+
+    <TextView
+        android:id="@+id/platform_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/battle_tag_field"
+        android:text="Platform: "/>
+
+    <Spinner
+        android:id="@+id/platform_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/battle_tag_field"
+        android:layout_toRightOf="@id/platform_text"/>
+
+    <TextView
+        android:id="@+id/region_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/platform_text"
+        android:text="Region: "/>
+
+    <Spinner
+        android:id="@+id/region_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/platform_text"
+        android:layout_toRightOf="@id/region_text"/>
+
+    <Button
+        android:id="@+id/search_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/region_text"
+        android:text="Search"/>
 </RelativeLayout>

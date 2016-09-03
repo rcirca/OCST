@@ -8,6 +8,8 @@ import com.squareup.otto.Bus;
 import com.statstracker.something.ocst.UnofficialOverwatchSDK.API.UnofficialOverwatchAPI;
 import com.statstracker.something.ocst.UnofficialOverwatchSDK.Service.ProfileService;
 
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -24,6 +26,12 @@ public class OCSTApplication extends Application {
 
         mService = new ProfileService(createApi(), mBus);
         mBus.register(mService);
+
+        // realm is safest
+        RealmConfiguration realmConfig = new RealmConfiguration.Builder(this)
+                .deleteRealmIfMigrationNeeded()
+                .build();
+        Realm.setDefaultConfiguration(realmConfig);
     }
 
     private UnofficialOverwatchAPI createApi() {
