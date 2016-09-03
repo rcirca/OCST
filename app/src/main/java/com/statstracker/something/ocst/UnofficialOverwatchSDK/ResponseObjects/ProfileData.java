@@ -7,4 +7,12 @@ package com.statstracker.something.ocst.UnofficialOverwatchSDK.ResponseObjects;
 
 public class ProfileData {
     PlayerData data;
+
+    public PlayerData getData() {
+        return data;
+    }
+
+    public void setData(PlayerData data) {
+        this.data = data;
+    }
 }

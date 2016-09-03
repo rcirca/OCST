@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">OCST</string>
+
+    <string-array name="region_array">
+        <item>us</item>
+        <item>eu</item>
+        <item>kr</item>
+        <item>cn</item>
+        <item>global</item>
+    </string-array>
+
+    <string-array name="platform_array">
+        <item>pc</item>
+        <item>psn</item>
+        <item>xbl</item>
+    </string-array>
+
 </resources>

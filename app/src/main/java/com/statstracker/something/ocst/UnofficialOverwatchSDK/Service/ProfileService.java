@@ -4,9 +4,15 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 import com.statstracker.something.ocst.Events.LoadProfileCallEvent;
 import com.statstracker.something.ocst.Events.LoadProfileResponseEvent;
+import com.statstracker.something.ocst.Player;
 import com.statstracker.something.ocst.UnofficialOverwatchSDK.API.UnofficialOverwatchAPI;
+import com.statstracker.something.ocst.UnofficialOverwatchSDK.ResponseObjects.PlayerData;
 import com.statstracker.something.ocst.UnofficialOverwatchSDK.ResponseObjects.ProfileData;
+import com.statstracker.something.ocst.UnofficialOverwatchSDK.SDKUtil;
 
+import io.realm.Realm;
+import io.realm.RealmQuery;
+import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -17,6 +23,7 @@ import retrofit2.Response;
 public class ProfileService {
     private UnofficialOverwatchAPI mApi;
     private Bus mBus;
+    private Realm mRealm;
 
     public ProfileService(UnofficialOverwatchAPI pApi, Bus pBus){
         mApi = pApi;
@@ -25,19 +32,62 @@ public class ProfileService {
 
     @Subscribe
     public void onLoadProfile(LoadProfileCallEvent pEvent){
-        Call<ProfileData> call = mApi.loadPlayerData(pEvent.getmPlatform(), pEvent.getmRegion(), pEvent.getmUsername());
-        call.enqueue(new Callback<ProfileData>() {
-            @Override
-            public void onResponse(Call<ProfileData> call, Response<ProfileData> response) {
-                mBus.post(new LoadProfileResponseEvent(true));
-            }
+        mRealm = Realm.getDefaultInstance();
+        RealmResults<Player> results = mRealm.where(Player.class)
+                .equalTo("battleTag", pEvent.getmUsername())
+                .findAll();
 
-            @Override
-            public void onFailure(Call<ProfileData> call, Throwable t) {
-                mBus.post(new LoadProfileResponseEvent(false));
-            }
-        });
+        int resultSize = results.size();
+
+        if (resultSize > 0) {
+            LoadProfileResponseEvent responseEvent = new LoadProfileResponseEvent(true);
+            responseEvent.setmPlayer(results.first());
+            mBus.post(responseEvent);
+            mRealm.close();
+        }
+        else {
+            SDKUtil.setmBattleTag(pEvent.getmUsername());
+            SDKUtil.setmRegion(pEvent.getmRegion());
+            SDKUtil.setmPlatform(pEvent.getmPlatform());
+
+            Call<ProfileData> call = mApi.loadPlayerData(pEvent.getmPlatform(), pEvent.getmRegion(), pEvent.getmUsername());
+
+            call.enqueue(new Callback<ProfileData>() {
+                @Override
+                public void onResponse(Call<ProfileData> call, Response<ProfileData> response) {
+                    PlayerData playerData = response.body().getData();
+                    LoadProfileResponseEvent responseEvent = new LoadProfileResponseEvent(true);
+
+                    mRealm.beginTransaction();
+
+                    Player player = mRealm.createObject(Player.class);
+
+                    player.setBattleTag(SDKUtil.getmBattleTag());
+                    player.setRegion(SDKUtil.getmRegion());
+                    player.setPlatform(SDKUtil.getmRegion());
+                    SDKUtil.clear();
+
+                    player.setUsername(playerData.getUsername());
+                    player.setRank(playerData.getCompetitive().getRank());
+                    player.setLost(Integer.toString(playerData.getGames().getCompetitive().getLost()));
+                    player.setWins(playerData.getGames().getCompetitive().getWins());
+                    player.setPlayed(playerData.getGames().getCompetitive().getPlayed());
+                    player.setPlaytime(playerData.getPlaytime().getCompetitive());
+                    player.setRankImg(playerData.getCompetitive().getRank_img());
+
+                    mRealm.commitTransaction();
+
+                    responseEvent.setmPlayer(player);
+                    mBus.post(responseEvent);
+                    mRealm.close();
+                }
+
+                @Override
+                public void onFailure(Call<ProfileData> call, Throwable t) {
+                    mBus.post(new LoadProfileResponseEvent(false));
+                    mRealm.close();
+                }
+            });
+        }
     }
-
-
 }
