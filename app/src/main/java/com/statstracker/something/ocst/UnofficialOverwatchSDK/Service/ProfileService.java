@@ -10,6 +10,10 @@ import com.statstracker.something.ocst.UnofficialOverwatchSDK.ResponseObjects.Pl
 import com.statstracker.something.ocst.UnofficialOverwatchSDK.ResponseObjects.ProfileData;
 import com.statstracker.something.ocst.UnofficialOverwatchSDK.SDKUtil;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
@@ -24,6 +28,8 @@ public class ProfileService {
     private UnofficialOverwatchAPI mApi;
     private Bus mBus;
     private Realm mRealm;
+    private DateFormat mDateFormat = new SimpleDateFormat("yyMMdd");
+    private Date mDate = new Date();
 
     public ProfileService(UnofficialOverwatchAPI pApi, Bus pBus){
         mApi = pApi;
@@ -33,24 +39,27 @@ public class ProfileService {
     @Subscribe
     public void onLoadProfile(LoadProfileCallEvent pEvent){
         mRealm = Realm.getDefaultInstance();
+        Call<ProfileData> call = mApi.loadPlayerData(pEvent.getmPlatform(), pEvent.getmRegion(), pEvent.getmUsername());
+
         RealmResults<Player> results = mRealm.where(Player.class)
                 .equalTo("battleTag", pEvent.getmUsername())
                 .findAll();
 
         int resultSize = results.size();
+        Player savedPlayer = null;
+        boolean queryAgain = true;
 
         if (resultSize > 0) {
-            LoadProfileResponseEvent responseEvent = new LoadProfileResponseEvent(true);
-            responseEvent.setmPlayer(results.first());
-            mBus.post(responseEvent);
-            mRealm.close();
+            savedPlayer = results.first();
+            int currentDate = Integer.parseInt(mDateFormat.format(mDate));
+            int lastQueried = Integer.parseInt(savedPlayer.getLastQueried());
+            queryAgain = currentDate > lastQueried;
         }
-        else {
+
+        if (queryAgain) {
             SDKUtil.setmBattleTag(pEvent.getmUsername());
             SDKUtil.setmRegion(pEvent.getmRegion());
             SDKUtil.setmPlatform(pEvent.getmPlatform());
-
-            Call<ProfileData> call = mApi.loadPlayerData(pEvent.getmPlatform(), pEvent.getmRegion(), pEvent.getmUsername());
 
             call.enqueue(new Callback<ProfileData>() {
                 @Override
@@ -75,6 +84,8 @@ public class ProfileService {
                     player.setPlaytime(playerData.getPlaytime().getCompetitive());
                     player.setRankImg(playerData.getCompetitive().getRank_img());
 
+                    player.setLastQueried(mDateFormat.format(mDate));
+
                     mRealm.commitTransaction();
 
                     responseEvent.setmPlayer(player);
@@ -84,10 +95,17 @@ public class ProfileService {
 
                 @Override
                 public void onFailure(Call<ProfileData> call, Throwable t) {
+                    SDKUtil.clear();
                     mBus.post(new LoadProfileResponseEvent(false));
                     mRealm.close();
                 }
             });
+        }
+        else {
+            LoadProfileResponseEvent responseEvent = new LoadProfileResponseEvent(true);
+            responseEvent.setmPlayer(savedPlayer);
+            mBus.post(responseEvent);
+            mRealm.close();
         }
     }
 }

@@ -19,6 +19,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,6 +36,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mRealm = Realm.getDefaultInstance();
+
+        RealmResults<Player> results = mRealm.where(Player.class)
+                .equalTo("battleTag", "lmnz-1802")
+                .findAll();
 
         mBus = BusProvider.getInstance();
         mBus.register(this);
