@@ -26,6 +26,20 @@ public class Player extends RealmObject implements Parcelable {
     String region;
     String platform;
 
+    // date to limit api hits
+    String lastQueried;
+
+    public Player() {
+    }
+
+    public String getLastQueried() {
+        return lastQueried;
+    }
+
+    public void setLastQueried(String lastQueried) {
+        this.lastQueried = lastQueried;
+    }
+
     public String getBattleTag() {
         return battleTag;
     }
@@ -48,9 +62,6 @@ public class Player extends RealmObject implements Parcelable {
 
     public void setPlatform(String platform) {
         this.platform = platform;
-    }
-
-    public Player() {
     }
 
     public String getUsername() {
@@ -120,6 +131,7 @@ public class Player extends RealmObject implements Parcelable {
         battleTag = in.readString();
         region = in.readString();
         platform = in.readString();
+        lastQueried = in.readString();
     }
 
     @Override
@@ -139,6 +151,7 @@ public class Player extends RealmObject implements Parcelable {
         dest.writeString(battleTag);
         dest.writeString(region);
         dest.writeString(platform);
+        dest.writeString(lastQueried);
     }
 
     @SuppressWarnings("unused")

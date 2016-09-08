@@ -24,14 +24,15 @@ public class OCSTApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        mService = new ProfileService(createApi(), mBus);
-        mBus.register(mService);
-
-        // realm is safest
+        // realm is safest on the ui thread
         RealmConfiguration realmConfig = new RealmConfiguration.Builder(this)
                 .deleteRealmIfMigrationNeeded()
                 .build();
+
         Realm.setDefaultConfiguration(realmConfig);
+
+        mService = new ProfileService(createApi(), mBus);
+        mBus.register(mService);
     }
 
     private UnofficialOverwatchAPI createApi() {
