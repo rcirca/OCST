@@ -1,5 +1,6 @@
 package com.statstracker.something.ocst.Activities;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
@@ -37,10 +38,6 @@ public class MainActivity extends AppCompatActivity {
 
         mRealm = Realm.getDefaultInstance();
 
-        RealmResults<Player> results = mRealm.where(Player.class)
-                .equalTo("battleTag", "lmnz-1802")
-                .findAll();
-
         mBus = BusProvider.getInstance();
         mBus.register(this);
 
@@ -60,6 +57,11 @@ public class MainActivity extends AppCompatActivity {
     @Subscribe
     public void onLoadProfileSuccess(LoadProfileResponseEvent pEvent){
         if (pEvent.ismSuccess()) {
+            // start new activity!
+            Intent intent = new Intent(this, DisplayProfileActivity.class);
+            intent.putExtra("profile", pEvent.getmPlayer());
+            startActivity(intent);
+            /*
             Player player = pEvent.getmPlayer();
             String username = player.getUsername();
             String rank = player.getRank();
@@ -68,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
             String played = player.getPlayed();
             String playTime = player.getPlaytime();
             Toast.makeText(this, username + " " + rank + " " + wins + " " + lost + " " + played + " " + playTime + " ", Toast.LENGTH_LONG).show();
+            */
         }
         else
             Toast.makeText(this, "Failed", Toast.LENGTH_LONG).show();
