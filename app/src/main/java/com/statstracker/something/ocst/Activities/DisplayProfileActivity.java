@@ -23,6 +23,7 @@ public class DisplayProfileActivity extends AppCompatActivity {
     private Player mPlayer;
 
     @BindView(R.id.displayUsername) TextView userName;
+    @BindView(R.id.displayRank) TextView rank;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +38,7 @@ public class DisplayProfileActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
         userName.setText(mPlayer.getUsername());
+        rank.setText(mPlayer.getRank());
     }
 
     @Override

@@ -11,7 +11,6 @@ import android.widget.Toast;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 import com.statstracker.something.ocst.BusProvider;
-import com.statstracker.something.ocst.Player;
 import com.statstracker.something.ocst.R;
 import com.statstracker.something.ocst.Events.LoadProfileCallEvent;
 import com.statstracker.something.ocst.Events.LoadProfileResponseEvent;
@@ -20,7 +19,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.realm.Realm;
-import io.realm.RealmResults;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -57,20 +55,9 @@ public class MainActivity extends AppCompatActivity {
     @Subscribe
     public void onLoadProfileSuccess(LoadProfileResponseEvent pEvent){
         if (pEvent.ismSuccess()) {
-            // start new activity!
             Intent intent = new Intent(this, DisplayProfileActivity.class);
             intent.putExtra("profile", pEvent.getmPlayer());
             startActivity(intent);
-            /*
-            Player player = pEvent.getmPlayer();
-            String username = player.getUsername();
-            String rank = player.getRank();
-            String wins = player.getWins();
-            String lost = player.getLost();
-            String played = player.getPlayed();
-            String playTime = player.getPlaytime();
-            Toast.makeText(this, username + " " + rank + " " + wins + " " + lost + " " + played + " " + playTime + " ", Toast.LENGTH_LONG).show();
-            */
         }
         else
             Toast.makeText(this, "Failed", Toast.LENGTH_LONG).show();

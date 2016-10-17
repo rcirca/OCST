@@ -45,16 +45,7 @@ public class ProfileService {
                 .equalTo("battleTag", pEvent.getmUsername())
                 .findAll();
 
-        int resultSize = results.size();
-        Player savedPlayer = null;
-        boolean queryAgain = true;
-
-        if (resultSize > 0) {
-            savedPlayer = results.first();
-            int currentDate = Integer.parseInt(mDateFormat.format(mDate));
-            int lastQueried = Integer.parseInt(savedPlayer.getLastQueried());
-            queryAgain = currentDate > lastQueried;
-        }
+        boolean queryAgain = checkQueryAgain(results);
 
         if (queryAgain) {
             SDKUtil.setmBattleTag(pEvent.getmUsername());
@@ -103,9 +94,28 @@ public class ProfileService {
         }
         else {
             LoadProfileResponseEvent responseEvent = new LoadProfileResponseEvent(true);
-            responseEvent.setmPlayer(savedPlayer);
+            responseEvent.setmPlayer(results.first());
             mBus.post(responseEvent);
             mRealm.close();
         }
+    }
+
+    private boolean checkQueryAgain(RealmResults<Player> results) {
+        int resultSize = results.size();
+        Player savedPlayer = null;
+        boolean queryAgain = true;
+
+        if (resultSize > 0) {
+            savedPlayer = results.first();
+            int currentDate = Integer.parseInt(mDateFormat.format(mDate));
+            int lastQueried = Integer.parseInt(savedPlayer.getLastQueried());
+            queryAgain = currentDate > lastQueried;
+            if (queryAgain) {
+                mRealm.beginTransaction();
+                results.deleteAllFromRealm();
+                mRealm.commitTransaction();
+            }
+        }
+        return queryAgain;
     }
 }
