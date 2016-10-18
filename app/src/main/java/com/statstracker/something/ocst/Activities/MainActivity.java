@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -24,10 +25,12 @@ public class MainActivity extends AppCompatActivity {
 
     private Bus mBus;
     private Realm mRealm;
+    private ArrayAdapter<String> mNavAdapter;
 
     @BindView(R.id.battle_tag_field) EditText mBattleTagField;
     @BindView(R.id.region_spinner) Spinner mRegionSpinner;
     @BindView(R.id.platform_spinner) Spinner mPlatformSpinner;
+    @BindView(R.id.navList) ListView mNavList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +53,10 @@ public class MainActivity extends AppCompatActivity {
                 R.array.region_array, android.R.layout.simple_spinner_item);
         regionAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mRegionSpinner.setAdapter(regionAdapter);
+
+        String[] menuArray = {"Profiles"};
+        mNavAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, menuArray);
+        mNavList.setAdapter(mNavAdapter);
     }
 
     @Subscribe
