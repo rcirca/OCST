@@ -64,7 +64,7 @@ public class ProfileService {
 
                     player.setBattleTag(SDKUtil.getmBattleTag());
                     player.setRegion(SDKUtil.getmRegion());
-                    player.setPlatform(SDKUtil.getmRegion());
+                    player.setPlatform(SDKUtil.getmPlatform());
                     SDKUtil.clear();
 
                     player.setUsername(playerData.getUsername());

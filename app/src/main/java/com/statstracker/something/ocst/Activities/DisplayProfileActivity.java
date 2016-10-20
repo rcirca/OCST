@@ -3,14 +3,19 @@ package com.statstracker.something.ocst.Activities;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 import com.statstracker.something.ocst.BusProvider;
+import com.statstracker.something.ocst.Events.LoadProfileCallEvent;
+import com.statstracker.something.ocst.Events.LoadProfileResponseEvent;
 import com.statstracker.something.ocst.Player;
 import com.statstracker.something.ocst.R;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import io.realm.Realm;
 
 /**
@@ -34,7 +39,6 @@ public class DisplayProfileActivity extends AppCompatActivity {
         mRealm = Realm.getDefaultInstance();
 
         mBus = BusProvider.getInstance();
-        mBus.register(this);
 
         ButterKnife.bind(this);
         userName.setText(mPlayer.getUsername());
@@ -45,5 +49,42 @@ public class DisplayProfileActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         mRealm.close();
+    }
+
+    @OnClick(R.id.refresh)
+    public void refreshProfile() {
+        String battleTag = mPlayer.getBattleTag();
+        String platform = mPlayer.getPlatform();
+        String region = mPlayer.getRegion();
+
+        mRealm.beginTransaction();
+        mRealm.where(Player.class).contains("battleTag", mPlayer.getBattleTag()).findFirst().deleteFromRealm();
+        mRealm.commitTransaction();
+
+        mBus.post(new LoadProfileCallEvent(platform, region, battleTag));
+    }
+
+    @Subscribe
+    public void onLoadProfileSuccess(LoadProfileResponseEvent pEvent){
+        if (pEvent.ismSuccess()) {
+            mPlayer = pEvent.getmPlayer();
+            userName.setText(mPlayer.getUsername());
+            rank.setText(mPlayer.getRank());
+            Toast.makeText(this, "Refresh successful", Toast.LENGTH_LONG).show();
+        }
+        else
+            Toast.makeText(this, "Failed to refresh", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mBus.unregister(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mBus.register(this);
     }
 }
