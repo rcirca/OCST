@@ -1,16 +1,18 @@
 package com.statstracker.something.ocst.Activities;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 import com.statstracker.something.ocst.BusProvider;
-import com.statstracker.something.ocst.Player;
 import com.statstracker.something.ocst.R;
 import com.statstracker.something.ocst.Events.LoadProfileCallEvent;
 import com.statstracker.something.ocst.Events.LoadProfileResponseEvent;
@@ -18,17 +20,19 @@ import com.statstracker.something.ocst.Events.LoadProfileResponseEvent;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnItemClick;
 import io.realm.Realm;
-import io.realm.RealmResults;
 
 public class MainActivity extends AppCompatActivity {
 
     private Bus mBus;
     private Realm mRealm;
+    private ArrayAdapter<String> mNavAdapter;
 
     @BindView(R.id.battle_tag_field) EditText mBattleTagField;
     @BindView(R.id.region_spinner) Spinner mRegionSpinner;
     @BindView(R.id.platform_spinner) Spinner mPlatformSpinner;
+    @BindView(R.id.navList) ListView mNavList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,10 +40,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mRealm = Realm.getDefaultInstance();
-
-        RealmResults<Player> results = mRealm.where(Player.class)
-                .equalTo("battleTag", "lmnz-1802")
-                .findAll();
 
         mBus = BusProvider.getInstance();
         mBus.register(this);
@@ -55,19 +55,18 @@ public class MainActivity extends AppCompatActivity {
                 R.array.region_array, android.R.layout.simple_spinner_item);
         regionAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mRegionSpinner.setAdapter(regionAdapter);
+
+        String[] menuArray = {"Profiles"};
+        mNavAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, menuArray);
+        mNavList.setAdapter(mNavAdapter);
     }
 
     @Subscribe
     public void onLoadProfileSuccess(LoadProfileResponseEvent pEvent){
         if (pEvent.ismSuccess()) {
-            Player player = pEvent.getmPlayer();
-            String username = player.getUsername();
-            String rank = player.getRank();
-            String wins = player.getWins();
-            String lost = player.getLost();
-            String played = player.getPlayed();
-            String playTime = player.getPlaytime();
-            Toast.makeText(this, username + " " + rank + " " + wins + " " + lost + " " + played + " " + playTime + " ", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(this, DisplayProfileActivity.class);
+            intent.putExtra("profile", pEvent.getmPlayer());
+            startActivity(intent);
         }
         else
             Toast.makeText(this, "Failed", Toast.LENGTH_LONG).show();
@@ -80,6 +79,12 @@ public class MainActivity extends AppCompatActivity {
         String region = mRegionSpinner.getSelectedItem().toString();
 
         mBus.post(new LoadProfileCallEvent(platform, region, battleTag));
+    }
+
+    @OnItemClick(R.id.navList)
+    public void onItemClick(ListView view, int position) {
+        String item = (String)view.getAdapter().getItem(position);
+        Log.v(item, item);
     }
 
     @Override
