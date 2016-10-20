@@ -8,11 +8,19 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:text="username placeholder"/>
+
     <TextView
         android:id="@+id/displayRank"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/displayUsername"
         android:text="rank placeholder"/>
+
+    <Button
+        android:id="@+id/refresh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/displayUsername"
+        android:text="Refresh" />
 
 </RelativeLayout>

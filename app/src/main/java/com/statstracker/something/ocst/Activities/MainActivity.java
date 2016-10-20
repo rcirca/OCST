@@ -42,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
         mRealm = Realm.getDefaultInstance();
 
         mBus = BusProvider.getInstance();
-        mBus.register(this);
 
         ButterKnife.bind(this);
 
@@ -91,5 +90,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         mRealm.close();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mBus.unregister(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mBus.register(this);
     }
 }
