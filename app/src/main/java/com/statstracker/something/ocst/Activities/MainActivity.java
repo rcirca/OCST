@@ -3,6 +3,7 @@ package com.statstracker.something.ocst.Activities;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -19,6 +20,7 @@ import com.statstracker.something.ocst.Events.LoadProfileResponseEvent;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnItemClick;
 import io.realm.Realm;
 
 public class MainActivity extends AppCompatActivity {
@@ -77,6 +79,12 @@ public class MainActivity extends AppCompatActivity {
         String region = mRegionSpinner.getSelectedItem().toString();
 
         mBus.post(new LoadProfileCallEvent(platform, region, battleTag));
+    }
+
+    @OnItemClick(R.id.navList)
+    public void onItemClick(ListView view, int position) {
+        String item = (String)view.getAdapter().getItem(position);
+        Log.v(item, item);
     }
 
     @Override
