@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">OCST</string>
+    <string name="search_title">Search</string>
 
     <string-array name="region_array">
         <item>us</item>
