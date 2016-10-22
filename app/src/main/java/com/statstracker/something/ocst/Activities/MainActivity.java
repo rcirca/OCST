@@ -37,12 +37,13 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.battle_tag_field) EditText mBattleTagField;
     @BindView(R.id.region_spinner) Spinner mRegionSpinner;
     @BindView(R.id.platform_spinner) Spinner mPlatformSpinner;
-    @BindView(R.id.navList) ListView mNavList;
+//    @BindView(R.id.navList) ListView mNavList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+//        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_search);
         handleIntent(getIntent());
 
         ButterKnife.bind(this);
@@ -65,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
         String[] menuArray = {"Profiles"};
         mNavAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, menuArray);
-        mNavList.setAdapter(mNavAdapter);
+//        mNavList.setAdapter(mNavAdapter);
     }
 
     @Override
@@ -121,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
         mBus.post(new LoadProfileCallEvent(platform, region, battleTag));
     }
 
-    @OnItemClick(R.id.navList)
+//    @OnItemClick(R.id.navList)
     public void onItemClick(ListView view, int position) {
         String item = (String)view.getAdapter().getItem(position);
         Log.v(item, item);
