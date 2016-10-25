@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent" android:layout_height="fill_parent"
+    android:fitsSystemWindows="true">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="70dp"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp">
+
+        <TextView
+            android:id="@+id/search_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search_title"
+            android:layout_centerHorizontal="true"
+            android:textSize="40dp"
+            android:textStyle="bold"/>
+
+        <android.support.v7.widget.AppCompatEditText
+            android:id="@+id/battle_tag_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/search_title"
+            android:paddingTop="32dp"
+            android:hint="Battle Tag"/>
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/region_spinner"
+            android:layout_width="100dp"
+            android:layout_height="32dp"
+            android:layout_below="@id/battle_tag_field"/>
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/platform_spinner"
+            android:layout_width="100dp"
+            android:layout_height="32dp"
+            android:layout_below="@id/region_spinner"/>
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/search_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Search"
+            android:layout_below="@id/platform_spinner"
+            android:layout_centerHorizontal="true"/>
+
+    </RelativeLayout>
+
+</ScrollView>

@@ -1,9 +1,15 @@
 package com.statstracker.something.ocst.Activities;
 
+import android.app.ProgressDialog;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -32,18 +38,24 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.battle_tag_field) EditText mBattleTagField;
     @BindView(R.id.region_spinner) Spinner mRegionSpinner;
     @BindView(R.id.platform_spinner) Spinner mPlatformSpinner;
-    @BindView(R.id.navList) ListView mNavList;
+//    @BindView(R.id.navList) ListView mNavList;
+
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        mRealm = Realm.getDefaultInstance();
-
-        mBus = BusProvider.getInstance();
+//        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_search);
+        handleIntent(getIntent());
 
         ButterKnife.bind(this);
+        initializeMemeberVariables();
+    }
+
+    private void initializeMemeberVariables() {
+        mRealm = Realm.getDefaultInstance();
+        mBus = BusProvider.getInstance();
 
         ArrayAdapter<CharSequence> platformAdapter = ArrayAdapter.createFromResource(this,
                 R.array.platform_array, android.R.layout.simple_spinner_item);
@@ -57,33 +69,12 @@ public class MainActivity extends AppCompatActivity {
 
         String[] menuArray = {"Profiles"};
         mNavAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, menuArray);
-        mNavList.setAdapter(mNavAdapter);
-    }
+//        mNavList.setAdapter(mNavAdapter);
 
-    @Subscribe
-    public void onLoadProfileSuccess(LoadProfileResponseEvent pEvent){
-        if (pEvent.ismSuccess()) {
-            Intent intent = new Intent(this, DisplayProfileActivity.class);
-            intent.putExtra("profile", pEvent.getmPlayer());
-            startActivity(intent);
-        }
-        else
-            Toast.makeText(this, "Failed", Toast.LENGTH_LONG).show();
-    }
-
-    @OnClick(R.id.search_button)
-    public void searchProfile() {
-        String battleTag = mBattleTagField.getText().toString().replace('#', '-');
-        String platform = mPlatformSpinner.getSelectedItem().toString();
-        String region = mRegionSpinner.getSelectedItem().toString();
-
-        mBus.post(new LoadProfileCallEvent(platform, region, battleTag));
-    }
-
-    @OnItemClick(R.id.navList)
-    public void onItemClick(ListView view, int position) {
-        String item = (String)view.getAdapter().getItem(position);
-        Log.v(item, item);
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setMessage("Searching");
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgressDialog.setIndeterminate(true);
     }
 
     @Override
@@ -102,5 +93,64 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         mBus.register(this);
+    }
+
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        MenuInflater inflater = getMenuInflater();
+//        inflater.inflate(R.menu.options_menu, menu);
+//
+//        SearchManager searchManager =
+//                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+//        SearchView searchView =
+//                (SearchView) menu.findItem(R.id.search).getActionView();
+//        searchView.setSearchableInfo(
+//                searchManager.getSearchableInfo(getComponentName()));
+//
+//        return true;
+//    }
+
+    @Subscribe
+    public void onLoadProfileSuccess(LoadProfileResponseEvent pEvent){
+        if (pEvent.ismSuccess()) {
+            Intent intent = new Intent(this, DisplayProfileActivity.class);
+            intent.putExtra("profile", pEvent.getmPlayer());
+            mProgressDialog.dismiss();
+            startActivity(intent);
+        }
+        else {
+            mProgressDialog.dismiss();
+            Toast.makeText(this, "Failed: " + pEvent.getErrorMessage(), Toast.LENGTH_LONG).show();
+        }
+
+    }
+
+    @OnClick(R.id.search_button)
+    public void searchProfile() {
+        mProgressDialog.show();
+        String battleTag = mBattleTagField.getText().toString().replace('#', '-');
+        String platform = mPlatformSpinner.getSelectedItem().toString();
+        String region = mRegionSpinner.getSelectedItem().toString();
+
+        mBus.post(new LoadProfileCallEvent(platform, region, battleTag));
+    }
+
+//    @OnItemClick(R.id.navList)
+    public void onItemClick(ListView view, int position) {
+        String item = (String)view.getAdapter().getItem(position);
+        Log.v(item, item);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            Toast.makeText(this, "Search Button Successful", Toast.LENGTH_LONG).show();
+        }
     }
 }

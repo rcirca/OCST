@@ -56,38 +56,39 @@ public class ProfileService {
                 @Override
                 public void onResponse(Call<ProfileData> call, Response<ProfileData> response) {
                     PlayerData playerData = response.body().getData();
-                    LoadProfileResponseEvent responseEvent = new LoadProfileResponseEvent(true);
+                    if (playerData != null) {
+                        LoadProfileResponseEvent responseEvent = new LoadProfileResponseEvent(true);
+                        mRealm.beginTransaction();
 
-                    mRealm.beginTransaction();
+                        Player player = mRealm.createObject(Player.class);
 
-                    Player player = mRealm.createObject(Player.class);
+                        player.setBattleTag(SDKUtil.getmBattleTag());
+                        player.setRegion(SDKUtil.getmRegion());
+                        player.setPlatform(SDKUtil.getmPlatform());
+                        SDKUtil.clear();
 
-                    player.setBattleTag(SDKUtil.getmBattleTag());
-                    player.setRegion(SDKUtil.getmRegion());
-                    player.setPlatform(SDKUtil.getmPlatform());
-                    SDKUtil.clear();
+                        player.populateUsingPlayerData(playerData);
+                        player.setLastQueried(mDateFormat.format(mDate));
 
-                    player.setUsername(playerData.getUsername());
-                    player.setRank(playerData.getCompetitive().getRank());
-                    player.setLost(Integer.toString(playerData.getGames().getCompetitive().getLost()));
-                    player.setWins(playerData.getGames().getCompetitive().getWins());
-                    player.setPlayed(playerData.getGames().getCompetitive().getPlayed());
-                    player.setPlaytime(playerData.getPlaytime().getCompetitive());
-                    player.setRankImg(playerData.getCompetitive().getRank_img());
+                        mRealm.commitTransaction();
 
-                    player.setLastQueried(mDateFormat.format(mDate));
-
-                    mRealm.commitTransaction();
-
-                    responseEvent.setmPlayer(player);
-                    mBus.post(responseEvent);
+                        responseEvent.setmPlayer(player);
+                        mBus.post(responseEvent);
+                    }
+                    else {
+                        LoadProfileResponseEvent responseEvent = new LoadProfileResponseEvent(false);
+                        responseEvent.setErrorMessage(response.body().getError());
+                        mBus.post(responseEvent);
+                    }
                     mRealm.close();
                 }
 
                 @Override
                 public void onFailure(Call<ProfileData> call, Throwable t) {
                     SDKUtil.clear();
-                    mBus.post(new LoadProfileResponseEvent(false));
+                    LoadProfileResponseEvent responseEvent = new LoadProfileResponseEvent(false);
+                    responseEvent.setErrorMessage(t.getMessage());
+                    mBus.post(responseEvent);
                     mRealm.close();
                 }
             });
@@ -102,7 +103,7 @@ public class ProfileService {
 
     private boolean checkQueryAgain(RealmResults<Player> results) {
         int resultSize = results.size();
-        Player savedPlayer = null;
+        Player savedPlayer;
         boolean queryAgain = true;
 
         if (resultSize > 0) {

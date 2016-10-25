@@ -3,6 +3,8 @@ package com.statstracker.something.ocst;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.statstracker.something.ocst.UnofficialOverwatchSDK.ResponseObjects.PlayerData;
+
 import io.realm.RealmObject;
 
 /**
@@ -30,6 +32,16 @@ public class Player extends RealmObject implements Parcelable {
     String lastQueried;
 
     public Player() {
+    }
+
+    public void populateUsingPlayerData(PlayerData playerData) {
+        setUsername(playerData.getUsername());
+        setRank(playerData.getCompetitive().getRank());
+        setLost(Integer.toString(playerData.getGames().getCompetitive().getLost()));
+        setWins(playerData.getGames().getCompetitive().getWins());
+        setPlayed(playerData.getGames().getCompetitive().getPlayed());
+        setPlaytime(playerData.getPlaytime().getCompetitive());
+        setRankImg(playerData.getCompetitive().getRank_img());
     }
 
     public String getLastQueried() {
@@ -109,6 +121,8 @@ public class Player extends RealmObject implements Parcelable {
     }
 
     public void setRank(String rank) {
+        if (rank == null)
+            rank = "unranked";
         this.rank = rank;
     }
 
