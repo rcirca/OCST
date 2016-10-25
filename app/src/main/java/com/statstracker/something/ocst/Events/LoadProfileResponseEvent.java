@@ -8,6 +8,15 @@ import com.statstracker.something.ocst.Player;
 public class LoadProfileResponseEvent {
     private boolean mSuccess;
     private Player mPlayer;
+    private String errorMessage;
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
 
     public LoadProfileResponseEvent(boolean pSuccess) {
         mSuccess = pSuccess;

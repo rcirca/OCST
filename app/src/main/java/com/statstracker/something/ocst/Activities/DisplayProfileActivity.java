@@ -35,7 +35,7 @@ public class DisplayProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.display_profile_layout);
 
-        mPlayer = (Player)getIntent().getParcelableExtra("profile");
+        mPlayer = getIntent().getParcelableExtra("profile");
         mRealm = Realm.getDefaultInstance();
 
         mBus = BusProvider.getInstance();
