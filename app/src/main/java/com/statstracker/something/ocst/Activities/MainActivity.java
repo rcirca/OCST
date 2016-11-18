@@ -135,6 +135,12 @@ public class MainActivity extends AppCompatActivity {
         mBus.post(new LoadProfileCallEvent(platform, region, battleTag));
     }
 
+    @OnClick(R.id.test_list_button)
+    public void listProfiles() {
+        Intent intent = new Intent(this, ListProfilesActivity.class);
+        startActivity(intent);
+    }
+
 //    @OnItemClick(R.id.navList)
     public void onItemClick(ListView view, int position) {
         String item = (String)view.getAdapter().getItem(position);

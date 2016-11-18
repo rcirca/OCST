@@ -47,6 +47,13 @@
             android:layout_below="@id/platform_spinner"
             android:layout_centerHorizontal="true"/>
 
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/test_list_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Saved Profiles"
+            android:layout_below="@id/search_button" />
+
     </RelativeLayout>
 
 </ScrollView>
